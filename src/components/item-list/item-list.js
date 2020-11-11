@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
-import SwapiService from '../../services/swapi-service';
 import Spinner from '../spinner';
 import ErrorIndicator from '../error-indicator';
 import './item-list.css';
 
 export default class ItemList extends Component {
-  swapiService = new SwapiService();
   state = {
-    allPeople: null,
+    itemList: null,
     loading: true,
     error: false,
   };
@@ -15,10 +13,10 @@ export default class ItemList extends Component {
     this.setState({ error: true, loading: false });
   };
   loadedAllPeople = () => {
-    this.swapiService
-      .getAllPeople()
-      .then((people) => {
-        this.setState({ allPeople: people, loading: false });
+    const { getData } = this.props;
+    getData()
+      .then((item) => {
+        this.setState({ itemList: item, loading: false });
       })
       .catch(this.onError);
   };
@@ -27,13 +25,17 @@ export default class ItemList extends Component {
     this.loadedAllPeople();
   }
   render() {
-    const { loading, allPeople, error } = this.state;
-    const {onLoadDetails} = this.props
+    const { loading, itemList, error } = this.state;
+    const { onLoadDetails } = this.props;
     const hasData = !(loading || error);
     const viewError = error ? <ErrorIndicator /> : null;
     const spinner = loading ? <Spinner /> : null;
     const content = hasData ? (
-      <PeopleView people={allPeople} onLoadDetails={onLoadDetails} />
+      <PeopleView
+        people={itemList}
+        onLoadDetails={onLoadDetails}
+        renderItem={this.props.renderItem}
+      />
     ) : null;
 
     return (
@@ -46,11 +48,17 @@ export default class ItemList extends Component {
   }
 }
 
-const PeopleView = ({ people, onLoadDetails }) => {
-  const elements = people.map((el) => {
+const PeopleView = ({ people, onLoadDetails, renderItem }) => {
+  const elements = people.map((item) => {
+    const { id } = item;
+    const label = renderItem(item);
     return (
-      <li className="list-group-item" key={el.id} onClick={() => onLoadDetails(el.id)}>
-        {el.name}
+      <li
+        className="list-group-item"
+        key={id}
+        onClick={() => onLoadDetails(id)}
+      >
+        {label}
       </li>
     );
   });
