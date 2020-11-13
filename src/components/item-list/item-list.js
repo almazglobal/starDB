@@ -31,8 +31,8 @@ export default class ItemList extends Component {
     const viewError = error ? <ErrorIndicator /> : null;
     const spinner = loading ? <Spinner /> : null;
     const content = hasData ? (
-      <PeopleView
-        people={itemList}
+      <ItemView
+        item={itemList}
         onLoadDetails={onLoadDetails}
         renderItem={this.props.renderItem}
       />
@@ -48,8 +48,8 @@ export default class ItemList extends Component {
   }
 }
 
-const PeopleView = ({ people, onLoadDetails, renderItem }) => {
-  const elements = people.map((item) => {
+const ItemView = ({ item, onLoadDetails, renderItem }) => {
+  const elements = item.map((item) => {
     const { id } = item;
     const label = renderItem(item);
     return (
